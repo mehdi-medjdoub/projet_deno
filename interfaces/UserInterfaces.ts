@@ -1,4 +1,5 @@
-export default interface UserInterfaces {
+//useless
+export default interface UserInterfaces { 
 
     _id: { $oid: string } | null | string;
 
