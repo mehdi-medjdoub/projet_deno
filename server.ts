@@ -1,15 +1,13 @@
-import * as expressive from "https://raw.githubusercontent.com/NMathar/deno-express/master/mod.ts";
+import { Application } from 'https://deno.land/x/oak/mod.ts'
+import router from './routes/routes.ts'
+const port = 8000
+const app = new Application()
 
-const port = 8001;
-const app = new expressive.App();
+app.use(router.routes())
+app.use(router.allowedMethods())
 
-app.get("/", async(req, res) => {
-    await res.json([
-        { id: 2, name: "Jim Doe", phone: "12425323" },
-    ]);
-});
+console.log(`Server running on port ${port}`)
 
-const server = await app.listen(port);
-console.log("app listening on port " + server.port);
+await app.listen({ port })
 
 // deno run --allow-net --allow-read server.ts
