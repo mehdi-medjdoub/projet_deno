@@ -4,16 +4,15 @@ export default interface UserInterfaces {
     _id: { $oid: string } | null | string;
 
     email: string;
- /*    password: string;
-    lastname: string;
-    firstname: string;
-    phoneNumber ? : string;
+    password: string;
+    sexe: string;
+    dateNaissance: string;
+    subscription: string;
 
-    dateNaiss: Date; */
-
-    getAge(): Number;
-    fullName(): string;
+    // getAge(): Number;
+    // fullName(): string;
     insert(): Promise<void> ;
-    update(): Promise <any> ;
-    delete(): Promise < any > ;
+    getUser(email: string, password: string): Promise<UserInterfaces>;
+    // update(): Promise <any> ;
+    // delete(): Promise < any > ;
 }
