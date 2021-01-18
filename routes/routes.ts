@@ -1,7 +1,7 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
 import { getBooks } from "../controllers/books.ts";
 import { home, notfound } from "../controllers/home.ts";
-import { login, register, subscription, user, userOff, addChild, deleteChild, getChild, editChild } from "../controllers/user.ts";
+import { login, register, subscription, user, deleteUser, userOff, addChild, deleteChild, getChild, editChild } from "../controllers/user.ts";
 import { getAllSong, getOneSong, cart, bill } from "../controllers/audio.ts";
 import * as todo from "../controllers/todo.ts";
 
@@ -14,6 +14,7 @@ router
   .put("/subscription", subscription)
   .put("/user", user)
   .delete("/user/off", userOff)
+  .delete("/user", deleteChild)
   .post("/user/child", addChild)
   .get("/user/child", getChild)
   .put("/user/cart", cart)

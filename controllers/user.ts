@@ -30,6 +30,14 @@ export const user = ({ response }: { response: any }) => {
   };
 };
 
+export const deleteUser = ({ response }: { response: any }) => {
+  response.status = 200;
+  response.body = {
+    success: true,
+    data: [],
+  };
+};
+
 export const userOff = ({ response }: { response: any }) => {
   response.status = 200;
   response.body = {
