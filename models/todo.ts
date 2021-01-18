@@ -33,7 +33,14 @@ export default {
    */
   add: async (
     { todo, isCompleted }: Todo,
-  ) => {},
+  ) => {return await client.query(
+    `INSERT INTO ${TABLE.TODO}(todo, isCompleted) values(?, ?)`,
+    [
+      todo,
+      isCompleted,
+    ],
+  );
+},
   /**
    * Updates the content of a single todo item
    * @param id
