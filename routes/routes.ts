@@ -7,9 +7,6 @@ const router = new Router()
 router.get('/books', getBooks)
     .get('/', home)
 
-    
-    .get('/(.*)', notfound)
-    .post('/(.*)', notfound)
 
 
 export default router

@@ -1,15 +1,31 @@
-//useless
+declare enum Sexe {
+    Homme,
+    Femme,
+    Autre
+ }
+
+declare enum Role { //à modifier
+    User,
+    Admin,
+    Autre
+ }
+
 export default interface UserInterfaces { 
 
     _id: { $oid: string } | null | string;
-
-    email: string;
- /*    password: string;
-    lastname: string;
+    
     firstname: string;
-    phoneNumber ? : string;
+    lastname?: string;
+    email?: string;
+    password?: string;
+    sexe?: Sexe;
+    role?: Role;
+    dateNaiss?: Date;
+    createdAt?: Date;
+    updateAt?: Date;
+    subscription?: Boolean | false
+    //phoneNumber ? : string;
 
-    dateNaiss: Date; */
 
     getAge(): Number;
     fullName(): string;
