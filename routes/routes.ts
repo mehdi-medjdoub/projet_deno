@@ -1,20 +1,33 @@
-import { Router } from 'https://deno.land/x/oak/mod.ts'
-import { getBooks } from '../controllers/books.ts'
-import { home, notfound } from '../controllers/home.ts'
-import * as todo from "../controllers/todo.ts"
+import { Router } from "https://deno.land/x/oak/mod.ts";
+import { getBooks } from "../controllers/books.ts";
+import { home, notfound } from "../controllers/home.ts";
+import { login, register, subscription, user, userOff, addChild, deleteChild, getChild, editChild } from "../controllers/user.ts";
+import { getAllSong, getOneSong, cart, bill } from "../controllers/audio.ts";
+import * as todo from "../controllers/todo.ts";
 
-const router = new Router()
+const router = new Router();
 
-router.get('/books', getBooks)
-    .get('/', home)
-    .post('/login', home)
-    
-    .get('/todos', todo.default.getAllTodos)
-    .post('/todos', todo.default.createTodo)
+router
+  .get("/", home)
+  .post("/login", login)
+  .post("/register", register)
+  .put("/subscription", subscription)
+  .put("/user", user)
+  .delete("/user/off", userOff)
+  .post("/user/child", addChild)
+  .get("/user/child", getChild)
+  .put("/user/cart", cart)
+  .delete("/user", deleteChild)
+  .get("/songs", getAllSong)
+  .get("/songs/{id}", getOneSong)
+  .get("/bill", bill)
 
-    
-    .get('/(.*)', notfound)
-    .post('/(.*)', notfound)
+  .get("/books", getBooks)
 
+  .get("/todos", todo.default.getAllTodos)
+  .post("/todos", todo.default.createTodo)
 
-export default router
+  .get("/(.*)", notfound)
+  .post("/(.*)", notfound)
+
+export default router;
