@@ -17,6 +17,7 @@ export const notfound = ({ response }: { response: any }) => {
     <html>
         <body>
         <h1>error 404</h1>
+        <h2> la route n'existe pas </h2>
         </body>
     </html>`
     //response.sendFile(new TextEncoder().encode("<h1>Hello World</h1>\n"));
