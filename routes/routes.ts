@@ -8,6 +8,7 @@ import * as todo from "../controllers/todo.ts";
 const router = new Router();
 
 router
+  //liste routes du xmind
   .get("/", home)
   .post("/login", login)
   .post("/register", register)
@@ -23,8 +24,10 @@ router
   .get("/songs/{id}", getOneSong)
   .get("/bill", bill)
 
+  //exemple books
   .get("/books", getBooks)
 
+  //exemple todos
   .get("/todos", todo.default.getAllTodos)
   .post("/todos", todo.default.createTodo)
 
