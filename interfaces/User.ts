@@ -12,7 +12,7 @@ declare enum Role { //à modifier
 
 export default interface UserInterfaces { 
 
-    _id: { $oid: string } | null | string;
+    id: { $oid: number } | null | number;
     
     firstname: string;
     lastname?: string;
@@ -31,5 +31,5 @@ export default interface UserInterfaces {
     fullName(): string;
     insert(): Promise<void> ;
     update(): Promise <any> ;
-    delete(): Promise < any > ;
+    delete(): Promise <any> ;
 }
