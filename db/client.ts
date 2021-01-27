@@ -3,7 +3,7 @@ import { DATABASE, TABLE } from "./config.ts";
 
 const client = await new Client();
 
-client.connect({
+/* client.connect({
   hostname: "localhost",
   username: "root",
   db: "",
@@ -28,9 +28,9 @@ const run = async () => {
         PRIMARY KEY (id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
   `);
-};
+}; 
 
-run();
+run();*/
 
 export default client;
 
