@@ -1,13 +1,15 @@
-import { Router } from "https://deno.land/x/oak/mod.ts";
+import { opine } from "https://deno.land/x/opine@1.0.2/mod.ts";
+import { sendReturn } from "../helpers/sendReturn.helper.ts"
+
 import { getBooks } from "../controllers/books.ts";
 import { home, notfound } from "../controllers/home.ts";
 import { login, register, subscription, user, deleteUser, userOff, addChild, deleteChild, getChild, editChild } from "../controllers/user.ts";
-import { getAllSong, getOneSong, cart, bill, getAllSong2 } from "../controllers/audio.ts";
+import { getAllSong, getOneSong, cart, bill } from "../controllers/audio.ts";
 import * as todo from "../controllers/todo.ts";
 
-const router = new Router();
+const routes = opine();
 
-router
+routes
   //liste routes du xmind
   .get("/", home)
   .post("/login", login)
@@ -21,18 +23,17 @@ router
   .put("/user/cart", cart)
   .delete("/user", deleteChild)
   .get("/songs", getAllSong)
-  .get("/songs2", getAllSong2)
-  .get("/songs/:id", getOneSong)
+  .get("/songs/{id}", getOneSong)
   .get("/bill", bill)
 
   //exemple books
-  .get("/books", getBooks)
+  //.get("/books", getBooks)
 
   //exemple todos
-  .get("/todos", todo.default.getAllTodos)
-  .post("/todos", todo.default.createTodo)
+  //.get("/todos", todo.default.getAllTodos)
+  //.post("/todos", todo.default.createTodo)
 
   .get("/(.*)", notfound)
   .post("/(.*)", notfound)
 
-export default router;
+export {routes};
