@@ -1,5 +1,5 @@
 // interfaces
-import Todo from "../interfaces/Todo.ts";
+//import Todo from "../interfaces/Todo.ts";
 // models
 import TodoModel from "../models/todo.ts";
 

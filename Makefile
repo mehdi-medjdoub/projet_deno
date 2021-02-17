@@ -15,7 +15,7 @@ debug:
 
 run:
 	@echo "Starting application..."
-	deno run --allow-net --allow-read server.ts
+	deno run --allow-env --allow-net --allow-read --allow-write --allow-plugin --unstable server.ts
 	#deno run --allow-env --allow-read --config tsconfig.json server.ts
 	
 test:
