@@ -1,5 +1,8 @@
 import axiod from "https://deno.land/x/axiod/mod.ts";
+import { isValidLength, numberFormat } from "./index.ts";
 import { config } from '../config/config.ts';
+import UserInterfaces from "../interfaces/UserInterfaces.ts";
+import { cardTypes } from "../types/cardTypes.ts";
 
 const {
     STRIPE_SECRET_KEY,
@@ -7,20 +10,6 @@ const {
 } = config;
 
 
-/**
- *  Add card token stripe
- */ 
-export const addCardStripe = async(numberCard: number, exp_month: number, exp_year: number, cvc?: number) => {
-    let payload: any = {
-        "card[number]": String(numberCard),
-        "card[exp_month]": String(exp_month),
-        "card[exp_year]": String(exp_year),
-        //"card[cvc]": String(cvc),//optional
-    };
-    
-    const dataBody = convertToFormBody(payload);
-    return await axiod(`https://api.stripe.com/v1/tokens`, getConfigAxiod('post', dataBody))//
-}
 
 /**
  *  Add customer stripe
@@ -31,18 +20,19 @@ export const addCustomerStripe = async(email: string, fullName: string) => {
         "name": fullName,
     };
     const dataBody = convertToFormBody(payload);
-    return await axiod("https://api.stripe.com/v1/customers", getConfigAxiod('post', dataBody))
+    return await axiod("https://api.stripe.com/v1/customers", getConfigAxiod('post', dataBody))// return cus_...
 }
 
 /**
  *  Update customer with card token (secure) stripe
  */ 
-export const updateCustomerCardStripe = async(idCustomer: string, idCard: string) => {
+export const updateCustomerCardStripe = async(idCustomer: string | undefined , idCard: string) => {
+    if(idCustomer === undefined || idCustomer === null) return;
     let payload: any = {
         'source' : idCard
     };
     const dataBody = convertToFormBody(payload);
-    return await axiod(`https://api.stripe.com/v1/customers/${idCustomer}/sources`, getConfigAxiod('post', dataBody))
+    return await axiod(`https://api.stripe.com/v1/customers/${idCustomer}/sources`, getConfigAxiod('post', dataBody))// return src_...
 }
 
 /**
@@ -65,7 +55,7 @@ const addPriceProductStripe = async(idProduct: string, unitAmount: number = 500,
     let payload: any = {
         "product": idProduct,
         "currency": currency.toLowerCase(),
-        "unit_amount": unitAmount < 0 ? 500 : unitAmount,
+        "unit_amount": unitAmount < 0 ? 500 : unitAmount,// equivalent a 500 centimes soit 5.00 Euros
         "billing_scheme": "per_unit",
         "recurring[interval]":"month",
         "recurring[interval_count]":"1",
@@ -80,27 +70,132 @@ const addPriceProductStripe = async(idProduct: string, unitAmount: number = 500,
 /**
  *  Payment abonnement au produit
  */ 
-export const paymentStripe = async(idCustomer: string | undefined, idPrice: string, quantity: number = 1) => {
-    if(idCustomer === null || idCustomer === undefined){
-        return;
-    }else{
-        let payload: any = {
-            "customer": idCustomer,
-            "off_session": String(true),
-            "collection_method": "charge_automatically",
-            "items[0][price]": idPrice,
-            "items[0][quantity]": String(quantity),
-            "enable_incomplete_payments": String(false) // Champ a vérifier et confirmer
-        };
-        const dataBody = convertToFormBody(payload);
-        return await axiod(`https://api.stripe.com/v1/subscriptions`, getConfigAxiod('post', dataBody))
-    }
+export const paymentStripe = async(idCustomer: string | undefined, idPrice: string, quantity: number = 1): Promise<any>=> {
+    return new Promise(async(resolve, reject) => {
+        if(idCustomer === null || idCustomer === undefined){
+            reject();
+        }else{
+            let payload: any = {
+                "customer": idCustomer,
+                "off_session": String(true),
+                "collection_method": "charge_automatically",
+                "items[0][price]": idPrice,
+                "items[0][quantity]": String(quantity),
+                "enable_incomplete_payments": String(false) // Champ a vérifier et confirmer
+            };
+            const dataBody = convertToFormBody(payload);
+            await axiod(`https://api.stripe.com/v1/subscriptions`, getConfigAxiod('post', dataBody))
+                .then((data) => {
+                    resolve(data)//return sub_...
+                }).catch((error) => {
+                    reject(error)
+                })
+        }        
+    });
 }
 
 /**
- *  Conversion to form body
+ *  Récupération des données du client Stripe
+ */ 
+export const getCustomerStripe = async(idCustomer: string) => {
+    return await axiod(`https://api.stripe.com/v1/customers/${idCustomer}`, getConfigAxiod('get'))
+}
+
+/**
+ *  Function get all cards from customer
+ *  @param idCard idCard
+ */ 
+export const getAllCardsCustomerStripe = async(idCustomer: string | undefined) => {
+    if(idCustomer === null || idCustomer === undefined) return { data: {} };
+    return await axiod(`https://api.stripe.com/v1/customers/${idCustomer}/sources?object=card`, getConfigAxiod('get'))
+}
+
+/**
+ *  Modifier les données clients Stripe
+ */ 
+export const updateCustomerStripe = async(idCustomer: string | undefined, data: any, user: UserInterfaces): Promise<any>=> {
+    return new Promise(async(resolve, reject) => {
+        if(idCustomer === null || idCustomer === undefined){
+            reject();
+        }else{
+            let payload: any = { 
+                "email": user.email,
+                "name": data.firstname+' '+data.lastname,  
+            };
+            const dataBody = convertToFormBody(payload);
+            await axiod(`https://api.stripe.com/v1/customers/${idCustomer}`, getConfigAxiod('post', dataBody))
+                .then((data) => {
+                    resolve(data)
+                }).catch((error) => {
+                    reject(error)
+                })
+        }
+    });
+}
+
+/**
+ *  Supprimer le clients Stripe
+ */ 
+export const deleteCustomerStripe = async(idCustomer: string | undefined): Promise<any>=> {
+    return new Promise(async(resolve, reject) => {
+        if(idCustomer === null || idCustomer === undefined){
+            reject();
+        }else{
+            await axiod(`https://api.stripe.com/v1/customers/${idCustomer}`, getConfigAxiod('delete'))
+                .then((response) => {
+                    resolve(response)
+                }).catch((error) => {
+                    reject(error)
+                })
+        }
+    });
+}
+
+/**
+ *  Function get one card from customer
+ *  @param idCustomer idCustomer
+ *  @param idCard idCard
+ */ 
+export const getCardCustomerStripe = async(idCustomer: string, idCard: string) => {
+    return await axiod(`https://api.stripe.com/v1/customers/${idCustomer}/sources/${idCard}`, getConfigAxiod('get'))
+}
+
+/**
+ *  Function to detach a source card from customer
+ *  @param idCustomer idCustomer
+ *  @param idCard idCard
+ */ 
+export const detachCardCustomerStripe = async(idCustomer: string, idCard: string) => {
+    return await axiod(`https://api.stripe.com/v1/customers/${idCustomer}/sources/${idCard}`, getConfigAxiod('delete'))
+}
+
+/**
+ *  Check si la carte existe deja ou pas (true = existe deja et false = n'existe pas)
+ */ 
+
+/**
+ *  Check conformité sub card (true = fail et false = success)
+ */ 
+export const checkIsNonConformeSub = (data: any): boolean => {
+    if(!isValidLength(data.cvc, 3, 3) || !isValidLength(data.id, 1, 10)){
+        return true;//fail
+    }else{
+        const isNegative: boolean = parseInt(data.cvc) < 0 || parseInt(data.id) < 0 ? true : false;
+        const isNotNumber: boolean = !numberFormat(data.id) || !numberFormat(data.cvc) ? true : false ;
+        if(isNegative || isNotNumber){
+            return true;//fail
+        }else{
+            return false;//success
+        }
+    }
+}
+
+
+
+/**
+ *  Request config 
  *  @param methodReq post / get / put / delete ...
- *  @param dataBody data from body
+ *  @param dataBody? data from body
  */ 
 const getConfigAxiod = (methodReq: string, dataBody: any = null) => {
     const configAxiod = {
@@ -112,18 +207,18 @@ const getConfigAxiod = (methodReq: string, dataBody: any = null) => {
         },
         data: dataBody
     };
-    dataBody === null ? delete configAxiod.data : configAxiod;
+    dataBody === null ? delete configAxiod.data : null;
     return configAxiod;
 }
 
 /**
  *  Conversion to form body
  */ 
-const convertToFormBody = (cardDetails: any) => {
+const convertToFormBody = (data: any) => {
     let formBody: any = [];
-    for (let property in cardDetails) {
+    for (let property in data) {
         //cardDetails.hasOwnProperty(property)
-        formBody.push(encodeURIComponent(property) + '=' + encodeURIComponent(cardDetails[property]));
+        formBody.push(encodeURIComponent(property) + '=' + encodeURIComponent(data[property]));
     }
     return formBody.join("&");
 }
