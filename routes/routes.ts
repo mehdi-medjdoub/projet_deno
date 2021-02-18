@@ -1,7 +1,7 @@
 import { Router } from "https://deno.land/x/oak/mod.ts";
 import { home, notfound } from "../controllers/home.ts";
 import { login, register, subscription, user, deleteUser, userOff, addChild, deleteChild, getChild, editChild } from "../controllers/user.ts";
-import { getAllSong, getOneSong, cart, bill, getAllSong2 } from "../controllers/audio.ts";
+import { getAllSong, getOneSong, cart, bill } from "../controllers/audio.ts";
 
 const router = new Router();
 
@@ -19,7 +19,7 @@ router
   .put("/user/cart", cart)
   .delete("/user", deleteChild)
   .get("/songs", getAllSong)
-  .get("/songs2", getAllSong2)
+  //.get("/songs2", getAllSong2)
   .get("/songs/:id", getOneSong)
   .get("/bill", bill)
 

@@ -3,11 +3,13 @@ import { UserModels } from "../Models/UserModels.ts";
 import { RouterContext } from "https://deno.land/x/oak/mod.ts";//download
 import { UserDB } from "../db/userDB.ts";
 import UserInterfaces from "../interfaces/UserInterfaces.ts";
+import FactureInterfaces from "../interfaces/FactureInterfaces.ts";
 import { config } from '../config/config.ts';
 import { getAuthToken, getJwtPayload } from "../helpers/jwt.helpers.ts";
 import { Bson } from "https://deno.land/x/mongo@v0.20.1/mod.ts";
 import { play } from "https://deno.land/x/audio@0.1.0/mod.ts";//download
 import { SongDB } from "../db/SongDB.ts";
+import { FactureDB } from "../db/FactureDB.ts";
 import SongInterfaces from "../interfaces/SongInterfaces.ts";
 
 //const songsCollection = db.collection('songs')
@@ -59,10 +61,13 @@ export const cart = ({ response }: { response: any }) => {
     data: [],
   };
 };
-export const bill = ({ response }: { response: any }) => {
-  response.status = 200;
-  response.body = {
-    success: true,
-    data: [],
-  };
-};
+export const bill = async (ctx: RouterContext) => {
+  const payloadToken = await getJwtPayload(ctx, ctx.request.headers.get("Authorization"));// Payload du token
+  if (payloadToken === null || payloadToken === undefined ) return dataResponse(ctx, 401, { error: true, message: "Votre token n'est pas correct"})
+  const dbCollection = new UserDB();
+  const userParent = await dbCollection.selectUser({ _id: new Bson.ObjectId(payloadToken.id) })
+  if (userParent.role !== 'Tuteur') return dataResponse(ctx, 403, { error: true, message: "Vos droits d'accès ne permettent pas d'accéder à la ressource"})
+  //await addBill(payloadToken.id) // ajout facture
+  const factures = await new FactureDB().selectAllFactures({ idUser : payloadToken.id });
+  return dataResponse(ctx, 200, { error: false, bill: factures.map((item: FactureInterfaces) => deleteMapper(item, 'getBills'))})
+}
