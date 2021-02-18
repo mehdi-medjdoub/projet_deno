@@ -61,6 +61,7 @@ export const cart = ({ response }: { response: any }) => {
     data: [],
   };
 };
+
 export const bill = async (ctx: RouterContext) => {
   const payloadToken = await getJwtPayload(ctx, ctx.request.headers.get("Authorization"));// Payload du token
   if (payloadToken === null || payloadToken === undefined ) return dataResponse(ctx, 401, { error: true, message: "Votre token n'est pas correct"})
